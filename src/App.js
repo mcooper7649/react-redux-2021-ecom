@@ -34,7 +34,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header />
+        <Header currentUser={this.state.currentUser} />
         <Router>
           <Route exact path="/">
             <HomePage />
