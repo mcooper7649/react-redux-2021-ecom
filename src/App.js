@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Switch, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
 
 import HomePage from './pages/homepage/homepage.component';
@@ -14,7 +14,7 @@ class App extends React.Component {
     super();
 
     this.state = {
-      currentUser: null,
+      currentUser: {},
     };
   }
 
@@ -24,17 +24,18 @@ class App extends React.Component {
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
+        if (userRef) {
+          userRef.onSnapshot((snapShot) => {
+            this.setState({
+              currentUser: {
+                id: snapShot.id,
+                ...snapShot.data(),
+              },
+            });
 
-        userRef.onSnapshot((snapShot) => {
-          this.setState({
-            currentUser: {
-              id: snapShot.id,
-              ...snapShot.data(),
-            },
+            console.log(this.state);
           });
-
-          console.log(this.state);
-        });
+        }
       }
 
       this.setState({ currentUser: userAuth });
@@ -48,12 +49,14 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header currentUser={this.state.currentUser} />
-        <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/shop" component={ShopPage} />
-          <Route path="/signin" component={SignInSignUpPage} />
-        </Switch>
+        <BrowserRouter>
+          <Header currentUser={this.state.currentUser} />
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route path="/shop" component={ShopPage} />
+            <Route path="/signin" component={SignInSignUpPage} />
+          </Switch>
+        </BrowserRouter>
       </div>
     );
   }
